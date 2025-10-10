@@ -1,0 +1,41 @@
+{
+  "users": [
+    {
+      "name": "Alice Student",
+      "email": "alice.student@example.com",
+      "password": "Password123!",
+      "role": "student",
+      "department": "Computer Science"
+    },
+    {
+      "name": "Bob Staff",
+      "email": "bob.staff@example.com",
+      "password": "Password123!",
+      "role": "staff",
+      "department": "Information Technology"
+    },
+    {
+      "name": "Cara Admin",
+      "email": "cara.admin@example.com",
+      "password": "Password123!",
+      "role": "admin",
+      "department": "Administration"
+    }
+  ],
+  "logins": {
+    "alice": {
+      "email": "alice.student@example.com",
+      "password": "Password123!"
+    },
+    "bob": {
+      "email": "bob.staff@example.com",
+      "password": "Password123!"
+    },
+    "cara": {
+      "email": "cara.admin@example.com",
+      "password": "Password123!"
+    }
+  }
+}
+
+

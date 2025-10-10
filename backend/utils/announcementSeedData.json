@@ -1,0 +1,43 @@
+{
+  "announcements": [
+    {
+      "title": "Scheduled Maintenance: Network Upgrade",
+      "content": "<p>We will perform a scheduled <strong>network upgrade</strong> on Saturday 10:00–12:00. Expect brief connectivity interruptions.</p>",
+      "department": "Information Technology",
+      "priority": "high",
+      "attachments": [
+        {
+          "url": "https://example.com/maintenance-details.pdf",
+          "filename": "maintenance-details.pdf"
+        }
+      ]
+    },
+    {
+      "title": "Guest Lecture: Advances in Machine Learning",
+      "content": "<p>Join us in Hall A on Wednesday at 2 PM for a talk by Dr. Jane Doe on the latest trends in ML.</p>",
+      "department": "Computer Science",
+      "priority": "normal",
+      "attachments": []
+    },
+    {
+      "title": "Library Hours Extended During Exams",
+      "content": "<p>The library will be open <em>24/7</em> from Nov 20 to Dec 5 to support exam preparations.</p>",
+      "department": "Library Services",
+      "priority": "low"
+    },
+    {
+      "title": "Emergency Drill Reminder",
+      "content": "<p>An emergency evacuation drill will occur Friday at 11:30 AM. Please follow staff instructions and assembly points.</p>",
+      "department": "Administration",
+      "priority": "urgent"
+    },
+    {
+      "title": "Call for Volunteers: Open Day",
+      "content": "<p>We are seeking student volunteers for the upcoming Open Day. Sign up at the Student Affairs office.</p>",
+      "department": "Student Affairs",
+      "priority": "normal"
+    }
+  ]
+}
+
+

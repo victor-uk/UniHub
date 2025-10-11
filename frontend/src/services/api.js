@@ -1,19 +1,22 @@
 import axios from 'axios';
 
-// Create an instance of axios
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000',
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
-// Add a request interceptor to include the token in headers
+// Add a request interceptor to include the token in all requests
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+    // 1. Get the user info from localStorage
+    const userString = localStorage.getItem('user');
+
+    if (userString) {
+      // 2. Parse the user object to get the token
+      const user = JSON.parse(userString);
+      if (user && user.token) {
+        // 3. Attach the token to the Authorization header
+        config.headers['Authorization'] = `Bearer ${user.token}`;
+      }
     }
     return config;
   },
@@ -22,17 +25,5 @@ api.interceptors.request.use(
   }
 );
 
-// Generic API fetch function
-export const apiFetch = async (url, options = {}) => {
-  try {
-    const response = await api({
-      url,
-      ...options,
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
-
 export default api;
+

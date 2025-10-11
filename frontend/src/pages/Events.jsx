@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Calendar, Clock } from 'lucide-react';
 import api from '../services/api';
-import { Calendar, Tag, MapPin } from 'lucide-react';
+import { format } from 'date-fns';
+import io from 'socket.io-client'; // Import socket.io-client
 
 const Events = () => {
     const [events, setEvents] = useState([]);
@@ -10,8 +12,8 @@ const Events = () => {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const response = await api.get('/events');
-                setEvents(response.data);
+                const { data } = await api.get('/api/events');
+                setEvents(data);
             } catch (err) {
                 setError('Failed to fetch events.');
                 console.error(err);
@@ -19,58 +21,67 @@ const Events = () => {
                 setLoading(false);
             }
         };
+
         fetchEvents();
+
+        // --- Real-time logic ---
+        // Use environment variable for the backend URL
+        const socket = io(import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+        
+        socket.on('connect', () => {
+            console.log('Connected to Socket.io server for events!');
+        });
+
+        socket.on('new_event', (newEvent) => {
+            console.log('Received new event:', newEvent);
+            // Add the new event to the list, maintaining the sort order by start date
+            setEvents(prevEvents => 
+                [...prevEvents, newEvent].sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+            );
+        });
+
+        // Cleanup on component unmount
+        return () => {
+            socket.disconnect();
+        };
+        // --- End of real-time logic ---
+
     }, []);
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
-    if (loading) return <div className="text-center py-10">Loading events...</div>;
-    if (error) return <div className="text-center py-10 text-red-500">{error}</div>;
+    if (loading) return <div className="text-center mt-8">Loading events...</div>;
+    if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h1 className="text-4xl font-bold text-center mb-10 text-gray-800">Upcoming Events</h1>
-            <div className="space-y-8 max-w-4xl mx-auto">
-                {events.length > 0 ? (
-                    events.map((event) => (
-                        <div key={event._id} className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-yellow-500 hover:shadow-xl transition-shadow duration-300">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-2">{event.title}</h2>
-                            <div className="flex items-center text-gray-500 text-sm mb-4">
-                                <Calendar size={16} className="mr-2" />
-                                <span>{formatDate(event.startDate)}</span>
-                                <span className="mx-2">to</span>
-                                <span>{formatDate(event.endDate)}</span>
-                            </div>
-                            <p className="text-gray-700 mb-4">{event.description}</p>
-                            <div className="flex flex-wrap gap-4 text-sm">
-                                <div className="flex items-center bg-gray-100 px-3 py-1 rounded-full">
-                                    <MapPin size={14} className="mr-2 text-gray-600" />
-                                    <span className="font-medium">{event.venue}</span>
+        <div className="max-w-4xl mx-auto">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">Upcoming Events</h1>
+            {events.length === 0 ? (
+                <div className="bg-white p-6 rounded-lg shadow text-center text-gray-500">
+                    No upcoming events at the moment. Please check back later.
+                </div>
+            ) : (
+                <div className="space-y-6">
+                    {events.map(event => (
+                        <div key={event._id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                            <h2 className="text-2xl font-semibold text-blue-700 mb-2">{event.title}</h2>
+                            <p className="text-gray-600 mb-4">{event.description}</p>
+                            <div className="flex flex-wrap items-center text-sm text-gray-500 gap-x-6 gap-y-2">
+                                <div className="flex items-center gap-2">
+                                    <Calendar size={16} />
+                                    <span>{format(new Date(event.startDate), 'PPP')}</span>
                                 </div>
-                                <div className="flex items-center bg-gray-100 px-3 py-1 rounded-full">
-                                    <Tag size={14} className="mr-2 text-gray-600" />
-                                    <span className="font-medium">Organized by: {event.organizer.name}</span>
+                                <div className="flex items-center gap-2">
+                                    <Clock size={16} />
+                                    <span>{format(new Date(event.startDate), 'p')} - {format(new Date(event.endDate), 'p')}</span>
                                 </div>
+                                <div className="font-semibold">{event.venue}</div>
                             </div>
                         </div>
-                    ))
-                ) : (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg">
-                        <h3 className="text-xl text-gray-700">No upcoming events.</h3>
-                        <p className="text-gray-500 mt-2">Please check back later!</p>
-                    </div>
-                )}
-            </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
 
 export default Events;
+

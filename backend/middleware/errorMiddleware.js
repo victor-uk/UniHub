@@ -18,4 +18,8 @@ const notFound = (req, res, next) => {
   };
   
   export { notFound, errorHandler };
+
+  // Default export combining both middleware functions
+  const errorMiddleware = { notFound, errorHandler };
+  export default errorMiddleware;
   

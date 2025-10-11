@@ -1,4 +1,5 @@
 import Announcement from '../models/Announcement.js';
+import { broadcastNewAnnouncement, broadcastUpdatedAnnouncement, broadcastDeletedAnnouncement } from '../services/socketService.js';
 
 // @desc    Create an announcement
 // @route   POST /api/announcements
@@ -16,6 +17,13 @@ export const createAnnouncement = async (req, res) => {
     });
 
     const createdAnnouncement = await announcement.save();
+    
+    // Populate the author field for broadcasting
+    await createdAnnouncement.populate('author', 'name');
+    
+    // Broadcast the new announcement to all connected clients
+    broadcastNewAnnouncement(createdAnnouncement);
+    
     res.status(201).json(createdAnnouncement);
   } catch (error) {
     res.status(500).json({ message: 'Server Error: Could not create announcement', error: error.message });
@@ -71,6 +79,13 @@ export const updateAnnouncement = async (req, res) => {
             announcement.priority = priority || announcement.priority;
             
             const updatedAnnouncement = await announcement.save();
+            
+            // Populate the author field for broadcasting
+            await updatedAnnouncement.populate('author', 'name');
+            
+            // Broadcast the updated announcement to all connected clients
+            broadcastUpdatedAnnouncement(updatedAnnouncement);
+            
             res.json(updatedAnnouncement);
         } else {
             res.status(404).json({ message: 'Announcement not found' });
@@ -91,6 +106,9 @@ export const deleteAnnouncement = async (req, res) => {
              if (announcement.author.toString() !== req.user.id && req.user.role !== 'admin') {
                 return res.status(403).json({ message: 'User not authorized to delete this announcement' });
             }
+            // Broadcast the deleted announcement ID before deleting
+            broadcastDeletedAnnouncement(announcement._id);
+            
             await announcement.deleteOne();
             res.json({ message: 'Announcement removed' });
         } else {

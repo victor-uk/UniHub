@@ -1,44 +1,39 @@
 import express from 'express';
-import dotenv from 'dotenv';
+import http from 'http';
 import cors from 'cors';
-import helmet from 'helmet';
+import dotenv from 'dotenv';
 import connectDB from './config/database.js';
 import authRoutes from './routes/authRoutes.js';
 import apiRoutes from './routes/apiRoutes.js';
-import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+import errorMiddleware from './middleware/errorMiddleware.js';
+import { initSocket } from './services/socketService.js';
 
-// Load environment variables
 dotenv.config();
 
-// Connect to database
+// Connect to Database
 connectDB();
 
 const app = express();
+const server = http.createServer(app);
 
-// Core Middleware
-app.use(helmet());
+// Initialize Socket.io
+initSocket(server);
+
+// Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
+    credentials: true
 }));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api', apiRoutes);
 
-
-// --- API Routes ---
-app.get('/', (req, res) => {
-  res.send('Departmental Board API is running...');
-});
-
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1', apiRoutes);
-
-
-// --- Error Handling Middleware ---
-app.use(notFound);
-app.use(errorHandler);
+// Error Handling
+app.use(errorMiddleware.notFound);
+app.use(errorMiddleware.errorHandler);
 
 const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-app.listen(PORT, () => console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));

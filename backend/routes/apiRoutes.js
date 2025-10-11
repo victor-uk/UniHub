@@ -12,7 +12,7 @@ const router = express.Router();
 
 // Announcement Routes
 router.route('/announcements')
-    .post(protect, authorize('admin', 'staff'), createAnnouncement)
+    .post(protect, authorize('admin', 'staff', 'student'), createAnnouncement)
     .get(getAnnouncements);
 
 router.route('/announcements/:id')

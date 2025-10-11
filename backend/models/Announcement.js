@@ -17,7 +17,6 @@ const announcementSchema = new mongoose.Schema({
   },
   department: {
     type: String,
-    required: true,
   },
   priority: {
     type: String,

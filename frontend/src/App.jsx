@@ -13,17 +13,16 @@ import AdminDashboard from './pages/AdminDashboard';
 import NotFound from './pages/NotFound';
 import PrivateRoute from './components/common/PrivateRoute';
 import ContentProtection from './components/common/ContentProtection';
-import useDarkMode from './hooks/useDarkMode'; // Import the hook
+import useDarkMode from './hooks/useDarkMode';
 
 function App() {
-  // This hook will manage adding/removing the 'dark' class on the html element
   useDarkMode();
 
   return (
     <AuthProvider>
       <Router>
-        {/* The background color will now change based on the theme */}
-        <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        {/* The background color classes have been removed from this div to allow the body background to show */}
+        <div className="flex flex-col min-h-screen">
           <Navbar />
           <main className="flex-grow container mx-auto px-4 py-8">
             <Routes>

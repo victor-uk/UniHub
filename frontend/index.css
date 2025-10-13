@@ -2,31 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Updated the SVG background to a neutral gray dot pattern */
+@layer base {
+    body {
+        @apply bg-gray-100 dark:bg-gray-800;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cg fill='%23a0aec0' fill-opacity='0.4'%3E%3Ccircle cx='10' cy='10' r='1'/%3E%3C/g%3E%3C/svg%3E");
+    }
+}
+
 @layer components {
     /* Base component styles with dark mode variants */
     .input {
-        @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500
-               dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white;
+        @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:placeholder-gray-400;
     }
     .label {
         @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
     }
     .btn-primary {
-        @apply bg-blue-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300 dark:hover:bg-blue-500;
+        @apply bg-blue-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600;
     }
     .btn-secondary {
-        @apply bg-gray-200 text-gray-800 font-semibold px-4 py-2 rounded-md hover:bg-gray-300 transition-colors 
-               dark:bg-gray-600 dark:text-gray-100 dark:hover:bg-gray-500;
+        @apply bg-gray-200 text-gray-800 font-semibold px-4 py-2 rounded-md hover:bg-gray-300 transition-colors dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600;
     }
     .btn-danger {
-        @apply bg-red-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-red-700 transition-colors dark:hover:bg-red-500;
+        @apply bg-red-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-red-700 transition-colors dark:bg-red-500 dark:hover:bg-red-600;
     }
     .error-text {
         @apply text-red-500 dark:text-red-400 text-sm mt-1;
     }
     .error-banner {
-        @apply bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative
-               dark:bg-red-900/20 dark:border-red-500/50 dark:text-red-400;
+        @apply bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-500/50 text-red-700 dark:text-red-300 px-4 py-3 rounded relative;
     }
     .th {
         @apply px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider;
@@ -37,20 +42,20 @@
     
     /* Nav Link Styles for consistency */
     .nav-link {
-        @apply text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors font-medium text-base;
+        @apply text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium text-base;
     }
     .nav-link-active {
         @apply text-blue-600 dark:text-blue-400 font-semibold;
     }
     .nav-icon-link {
-        @apply text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
+        @apply text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
     }
     .btn-logout {
-        @apply flex items-center gap-2 bg-red-500 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-red-600 dark:hover:bg-red-400 transition-colors;
+        @apply flex items-center gap-2 bg-red-500 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-red-600 transition-colors;
     }
 }
 
-/* Quill Editor Styles with dark mode variants */
+/* Quill Editor Styles */
 .ql-editor {
     min-height: 200px;
     font-size: 1rem;
@@ -58,35 +63,16 @@
 .dark .ql-editor {
     color: #d1d5db; /* gray-300 */
 }
-.dark .ql-editor.ql-blank::before {
-    color: rgba(209, 213, 219, 0.6);
-}
-
-.ql-toolbar {
-    border-top-left-radius: 0.375rem;
-    border-top-right-radius: 0.375rem;
-    border-color: #d1d5db; /* gray-300 */
-}
-.dark .ql-toolbar {
-    border-color: #4b5563; /* gray-600 */
-}
 .dark .ql-snow .ql-stroke {
-    stroke: #d1d5db;
+    stroke: #9ca3af; /* gray-400 */
 }
 .dark .ql-snow .ql-picker-label {
-    color: #d1d5db;
+    color: #9ca3af; /* gray-400 */
 }
-.dark .ql-snow .ql-fill {
-    fill: #d1d5db;
+.ql-toolbar {
+    @apply rounded-t-md border-gray-300 dark:border-gray-600;
 }
-
-
 .ql-container {
-    border-bottom-left-radius: 0.375rem;
-    border-bottom-right-radius: 0.375rem;
-    border-color: #d1d5db; /* gray-300 */
-}
-.dark .ql-container {
-     border-color: #4b5563; /* gray-600 */
+    @apply rounded-b-md border-gray-300 dark:border-gray-600;
 }
 

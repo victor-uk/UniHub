@@ -8,7 +8,6 @@ import Modal from '../components/common/Modal';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import AnnouncementForm from '../components/announcements/AnnouncementForm';
 
-// No changes to this sub-component
 const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     const { user } = useAuth();
     const canManage = user && (user.role === 'admin' || user.role === 'staff');
@@ -65,7 +64,6 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
 const Announcements = () => {
     const [announcements, setAnnouncements] = useState([]);
     const [loading, setLoading] = useState(true);
-    // Refactored modal state
     const [modalState, setModalState] = useState({ type: null, item: null });
 
     useEffect(() => {
@@ -92,7 +90,6 @@ const Announcements = () => {
         return () => socket.disconnect();
     }, []);
 
-    // Simplified modal handlers
     const openModal = (type, item) => setModalState({ type, item });
     const closeModal = () => setModalState({ type: null, item: null });
 

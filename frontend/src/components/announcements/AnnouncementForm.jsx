@@ -1,88 +1,120 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css'; // import styles
-import { Loader2 } from 'lucide-react';
+import 'react-quill/dist/quill.snow.css';
 import api from '../../services/api';
-import { useNavigate } from 'react-router-dom';
+import ImageUpload from '../common/ImageUpload'; // Import the new component
+import LoadingSpinner from '../ui/LoadingSpinner';
 
-const AnnouncementForm = ({ setAnnouncements, onNewAnnouncement }) => {
-    const { register, handleSubmit, control, formState: { errors, isSubmitting }, reset } = useForm();
-    const navigate = useNavigate();
+const AnnouncementForm = ({ announcementToEdit, onFormSubmit, onCancel }) => {
+    const { register, handleSubmit, control, setValue, reset, formState: { errors } } = useForm();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [serverError, setServerError] = useState('');
+    const [imageUrl, setImageUrl] = useState(announcementToEdit?.image || null);
 
+    useEffect(() => {
+        if (announcementToEdit) {
+            // Pre-fill the form if we are editing
+            reset({
+                title: announcementToEdit.title,
+                content: announcementToEdit.content,
+                department: announcementToEdit.department,
+                priority: announcementToEdit.priority,
+            });
+            setImageUrl(announcementToEdit.image);
+        } else {
+            // Ensure form is clear for new entries
+            reset({
+                title: '',
+                content: '',
+                department: 'General',
+                priority: 'normal',
+            });
+            setImageUrl(null);
+        }
+    }, [announcementToEdit, reset]);
+
+    const handleImageUpload = (url) => {
+        setImageUrl(url); // Store the uploaded image URL in state
+        setValue('image', url); // Also set it in the form data
+    };
+    
     const onSubmit = async (data) => {
+        setIsSubmitting(true);
+        setServerError('');
+
+        const payload = { ...data, image: imageUrl }; // Ensure image URL is in the payload
+
         try {
-            const response = await api.post('/api/announcements', data);
-            // This is a simple way to update the list. For a more robust app,
-            // you might use a state management library like React Query to auto-refetch.
-            if(setAnnouncements) {
-                setAnnouncements(prev => [response.data, ...prev]);
+            if (announcementToEdit) {
+                // Update existing announcement
+                await api.put(`/api/announcements/${announcementToEdit._id}`, payload);
+            } else {
+                // Create new announcement
+                await api.post('/api/announcements', payload);
             }
-            if(onNewAnnouncement) {
-                onNewAnnouncement(response.data);
-            }
-            reset();
-            // Optionally, navigate to the announcements page or show a success message
+            onFormSubmit(); // Notify parent component of success
         } catch (error) {
-            console.error('Failed to create announcement:', error);
-            // You can set an error state here to show in the UI
+            setServerError(error.response?.data?.message || 'An error occurred. Please try again.');
+            console.error('Failed to submit announcement:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
-    const quillModules = {
-        toolbar: [
-            [{ 'header': [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-            [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
-            ['link', 'image'],
-            ['clean']
-        ],
-    };
-
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white p-8 shadow-lg rounded-lg border">
-            <h2 className="text-2xl font-bold">Create New Announcement</h2>
-            <div>
-                <label htmlFor="title" className="block text-sm font-medium leading-6 text-gray-900">
-                    Title
-                </label>
-                <div className="mt-2">
-                    <input
-                        id="title"
-                        type="text"
-                        {...register('title', { required: 'Title is required' })}
-                        className={`block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ${errors.title ? 'ring-red-500' : 'ring-gray-300'} placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm`}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {serverError && <div className="error-banner">{serverError}</div>}
+            
+            <input
+                type="text"
+                placeholder="Announcement Title"
+                {...register('title', { required: 'Title is required' })}
+                className="input"
+            />
+            {errors.title && <p className="error-text">{errors.title.message}</p>}
+
+            {/* Image Upload Component */}
+            <ImageUpload onUploadSuccess={handleImageUpload} initialImage={imageUrl} />
+
+            <Controller
+                name="content"
+                control={control}
+                rules={{ required: 'Content is required' }}
+                render={({ field }) => (
+                    <ReactQuill 
+                        theme="snow" 
+                        value={field.value || ''} 
+                        onChange={field.onChange} 
+                        className="bg-white"
                     />
-                    {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
-                </div>
-            </div>
-
-            <div>
-                <label htmlFor="content" className="block text-sm font-medium leading-6 text-gray-900 mb-2">
-                    Content
-                </label>
-                <Controller
-                    name="content"
-                    control={control}
-                    rules={{ required: 'Content is required' }}
-                    render={({ field }) => (
-                        <ReactQuill 
-                            theme="snow" 
-                            modules={quillModules}
-                            {...field} 
-                        />
-                    )}
+                )}
+            />
+            {errors.content && <p className="error-text">{errors.content.message}</p>}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <input
+                    type="text"
+                    placeholder="Department (e.g., Computer Science)"
+                    {...register('department', { required: 'Department is required' })}
+                    className="input"
                 />
-                {errors.content && <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>}
-            </div>
 
-            <div>
-                <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="flex w-full justify-center items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:bg-blue-400"
-                >
-                    {isSubmitting ? <Loader2 className="animate-spin" /> : 'Publish Announcement'}
+                <select {...register('priority')} className="input">
+                    <option value="normal">Normal Priority</option>
+                    <option value="low">Low Priority</option>
+                    <option value="high">High Priority</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+            </div>
+            {errors.department && <p className="error-text">{errors.department.message}</p>}
+            
+            <div className="flex justify-end gap-4">
+                <button type="button" onClick={onCancel} className="btn-secondary">
+                    Cancel
+                </button>
+                <button type="submit" disabled={isSubmitting} className="btn-primary">
+                    {isSubmitting ? <LoadingSpinner /> : (announcementToEdit ? 'Update Announcement' : 'Publish Announcement')}
                 </button>
             </div>
         </form>
@@ -90,3 +122,4 @@ const AnnouncementForm = ({ setAnnouncements, onNewAnnouncement }) => {
 };
 
 export default AnnouncementForm;
+

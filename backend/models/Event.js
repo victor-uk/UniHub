@@ -24,8 +24,13 @@ const eventSchema = new mongoose.Schema({
     },
     organizer: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
         required: true,
+        ref: 'User',
+    },
+    // This is the new field for the image URL
+    image: {
+        type: String, 
+        required: false, // Not every event must have an image
     },
 }, {
     timestamps: true,
@@ -34,3 +39,4 @@ const eventSchema = new mongoose.Schema({
 const Event = mongoose.model('Event', eventSchema);
 
 export default Event;
+

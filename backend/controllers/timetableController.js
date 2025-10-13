@@ -1,80 +1,88 @@
-import Timetable from '../models/Timetable.js';
 import asyncHandler from 'express-async-handler';
+import Timetable from '../models/Timetable.js';
+import { getIO } from '../services/socketService.js';
+
+// @desc    Create a new timetable entry
+// @route   POST /api/timetables
+// @access  Private/Admin
+const createTimetableEntry = asyncHandler(async (req, res) => {
+    const { day, time, courseCode, courseTitle, venue, level, department } = req.body;
+
+    const timetableEntry = new Timetable({
+        day,
+        time,
+        courseCode,
+        courseTitle,
+        venue,
+        level,
+        department
+    });
+
+    const createdEntry = await timetableEntry.save();
+    
+    // Emit event for real-time update
+    getIO().emit('new_timetable_entry', createdEntry);
+
+    res.status(201).json(createdEntry);
+});
 
 // @desc    Get all timetable entries
 // @route   GET /api/timetables
 // @access  Public
-export const getTimetables = asyncHandler(async (req, res) => {
-    // Advanced filtering can be added here later (e.g., by level, department)
-    const timetables = await Timetable.find({}).sort({ dayOfWeek: 1, startTime: 1 });
-    res.status(200).json(timetables);
-});
-
-// @desc    Create a new timetable entry
-// @route   POST /api/timetables
-// @access  Private/Admin/Staff
-export const createTimetable = asyncHandler(async (req, res) => {
-    const { courseCode, courseTitle, dayOfWeek, startTime, endTime, venue, lecturer, department, level } = req.body;
-
-    if (!courseCode || !courseTitle || !dayOfWeek || !startTime || !endTime || !venue || !level) {
-        res.status(400);
-        throw new Error('Please fill all required fields');
-    }
-
-    const timetable = new Timetable({
-        courseCode,
-        courseTitle,
-        dayOfWeek,
-        startTime,
-        endTime,
-        venue,
-        lecturer,
-        department,
-        level,
-        createdBy: req.user.id
-    });
-
-    const createdTimetable = await timetable.save();
-    res.status(201).json(createdTimetable);
+const getTimetableEntries = asyncHandler(async (req, res) => {
+    const entries = await Timetable.find({});
+    res.json(entries);
 });
 
 // @desc    Update a timetable entry
 // @route   PUT /api/timetables/:id
-// @access  Private/Admin/Staff
-export const updateTimetable = asyncHandler(async (req, res) => {
-    const timetable = await Timetable.findById(req.params.id);
+// @access  Private/Admin
+const updateTimetableEntry = asyncHandler(async (req, res) => {
+    const { day, time, courseCode, courseTitle, venue, level, department } = req.body;
+    
+    const entry = await Timetable.findById(req.params.id);
 
-    if (timetable) {
-        timetable.courseCode = req.body.courseCode || timetable.courseCode;
-        timetable.courseTitle = req.body.courseTitle || timetable.courseTitle;
-        timetable.dayOfWeek = req.body.dayOfWeek || timetable.dayOfWeek;
-        timetable.startTime = req.body.startTime || timetable.startTime;
-        timetable.endTime = req.body.endTime || timetable.endTime;
-        timetable.venue = req.body.venue || timetable.venue;
-        timetable.lecturer = req.body.lecturer || timetable.lecturer;
-        timetable.department = req.body.department || timetable.department;
-        timetable.level = req.body.level || timetable.level;
+    if (entry) {
+        entry.day = day || entry.day;
+        entry.time = time || entry.time;
+        entry.courseCode = courseCode || entry.courseCode;
+        entry.courseTitle = courseTitle || entry.courseTitle;
+        entry.venue = venue || entry.venue;
+        entry.level = level || entry.level;
+        entry.department = department || entry.department;
 
-        const updatedTimetable = await timetable.save();
-        res.json(updatedTimetable);
+        const updatedEntry = await entry.save();
+        
+        // Emit event for real-time update
+        getIO().emit('timetable_entry_updated', updatedEntry);
+
+        res.json(updatedEntry);
     } else {
         res.status(404);
         throw new Error('Timetable entry not found');
     }
 });
 
-
 // @desc    Delete a timetable entry
 // @route   DELETE /api/timetables/:id
-// @access  Private/Admin/Staff
-export const deleteTimetable = asyncHandler(async (req, res) => {
-    const timetable = await Timetable.findById(req.params.id);
+// @access  Private/Admin
+const deleteTimetableEntry = asyncHandler(async (req, res) => {
+    const entry = await Timetable.findById(req.params.id);
 
-    if (timetable) {
-        await timetable.deleteOne();
+    if (entry) {
+        const entryId = entry._id;
+        await entry.deleteOne();
+        
+        // Emit event for real-time update
+        getIO().emit('timetable_entry_deleted', entryId);
+
         res.json({ message: 'Timetable entry removed' });
     } else {
         res.status(404);
         throw new Error('Timetable entry not found');
     }
 });
+
+
+export { createTimetableEntry, getTimetableEntries, updateTimetableEntry, deleteTimetableEntry };
+

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import api from '../services/api';
-import useAuth from '../hooks/useAuth';
+import api from '../../services/api';
+import useAuth from '../../hooks/useAuth';
 import { Link } from 'react-router-dom';
-import StatCard from '../components/dashboard/StatCard';
-import RecentItemCard from '../components/dashboard/RecentItemCard';
+import StatCard from './StatCard';
+import RecentItemCard from './RecentItemCard';
 import { FileText, Calendar, Clock, ArrowRight } from 'lucide-react';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import LoadingSpinner from '../ui/LoadingSpinner';
 
 const DashboardHome = () => {
     const { user } = useAuth();
@@ -56,9 +56,9 @@ const DashboardHome = () => {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <StatCard icon={<FileText size={24} className="text-blue-500" />} title="Announcements" value={stats.announcements} />
-                <StatCard icon={<Calendar size={24} className="text-green-500" />} title="Upcoming Events" value={stats.events} />
-                <StatCard icon={<Clock size={24} className="text-yellow-500" />} title="Timetable Entries" value={stats.timetableEntries} />
+                <StatCard icon={<FileText size={24} />} title="Announcements" value={stats.announcements} />
+                <StatCard icon={<Calendar size={24} />} title="Upcoming Events" value={stats.events} />
+                <StatCard icon={<Clock size={24} />} title="Timetable Entries" value={stats.timetableEntries} />
             </div>
 
             {/* Quick Actions for Admins */}

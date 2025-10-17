@@ -91,6 +91,3 @@ A full-stack, real-time information board for university departments built with 
     ```
     The frontend will run on `http://localhost:5173`.
 
----
-
-This officially concludes our development. Congratulations on building a comprehensive and professional full-stack application!

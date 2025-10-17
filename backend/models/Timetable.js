@@ -1,57 +1,54 @@
 import mongoose from 'mongoose';
 
-const TimetableSchema = new mongoose.Schema({
+const timetableSchema = new mongoose.Schema({
     courseCode: {
         type: String,
-        required: [true, 'Please add a course code'],
-        trim: true,
-        uppercase: true,
+        required: true,
     },
     courseTitle: {
         type: String,
-        required: [true, 'Please add a course title'],
-        trim: true,
+        required: true,
     },
-    dayOfWeek: {
+    day: {
         type: String,
-        required: [true, 'Please specify the day of the week'],
-        enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        required: true,
+        enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
     },
     startTime: {
-        type: String, // e.g., "09:00"
-        required: [true, 'Please add a start time'],
+        type: String,
+        required: true,
     },
     endTime: {
-        type: String, // e.g., "11:00"
-        required: [true, 'Please add an end time'],
-    },
-    venue: {
         type: String,
-        required: [true, 'Please add a venue'],
-        trim: true,
+        required: true,
     },
     lecturer: {
         type: String,
-        trim: true,
+        required: true,
+    },
+    venue: {
+        type: String,
+        required: true,
+    },
+    level: {
+        type: String,
+        required: true,
     },
     department: {
         type: String,
         required: true,
-        default: 'General'
     },
-    level: {
-        type: Number, // e.g., 100, 200, 300, 400
-        required: [true, 'Please specify the level'],
-    },
+    // This is the corrected field
     createdBy: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
         ref: 'User',
-        required: true
-    }
+    },
 }, {
-    timestamps: true
+    timestamps: true,
 });
 
-const Timetable = mongoose.model('Timetable', TimetableSchema);
+const Timetable = mongoose.model('Timetable', timetableSchema);
 
 export default Timetable;
+

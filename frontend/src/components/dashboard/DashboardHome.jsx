@@ -43,7 +43,7 @@ const DashboardHome = () => {
 
     const canManage = user && (user.role === 'admin' || user.role === 'staff');
 
-    if (loading) {
+    if (loading || !user) {
         return <div className="flex justify-center items-center h-64"><LoadingSpinner /></div>;
     }
 
@@ -54,14 +54,13 @@ const DashboardHome = () => {
                 <p className="mt-1 text-gray-600 dark:text-gray-400">Here's a quick overview of what's happening in the department.</p>
             </div>
 
-            {/* Stats Grid */}
+            {/* Stats Grid with colors passed to StatCard */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <StatCard icon={<FileText size={24} />} title="Announcements" value={stats.announcements} />
-                <StatCard icon={<Calendar size={24} />} title="Upcoming Events" value={stats.events} />
-                <StatCard icon={<Clock size={24} />} title="Timetable Entries" value={stats.timetableEntries} />
+                <StatCard icon={<FileText size={24} />} title="Announcements" value={stats.announcements} color="blue" />
+                <StatCard icon={<Calendar size={24} />} title="Upcoming Events" value={stats.events} color="green" />
+                <StatCard icon={<Clock size={24} />} title="Timetable Entries" value={stats.timetableEntries} color="yellow" />
             </div>
 
-            {/* Quick Actions for Admins */}
             {canManage && (
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
                     <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4">Quick Actions</h2>
@@ -71,9 +70,7 @@ const DashboardHome = () => {
                 </div>
             )}
 
-            {/* Recent Items */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Recent Announcements */}
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
                     <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4">Recent Announcements</h2>
                     <div className="space-y-4">
@@ -88,7 +85,6 @@ const DashboardHome = () => {
                     </Link>
                 </div>
 
-                {/* Upcoming Events */}
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
                     <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4">Upcoming Events</h2>
                     <div className="space-y-4">
